@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Smart Campus Assistant</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        .logo {
+            color: white;
+            font-size: 1.5rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .nav-tab {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: none;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+        }
+
+        .nav-tab:hover, .nav-tab.active {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .main-container {
+            flex: 1;
+            display: flex;
+            gap: 1rem;
+            padding: 1rem;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        .sidebar {
+            width: 300px;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+            height: fit-content;
+        }
+
+        .content-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .chat-container {
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            display: flex;
+            flex-direction: column;
+            height: 600px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .chat-header {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .chat-messages {
+            flex: 1;
+            padding: 1rem;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 0.8rem 1.2rem;
+            border-radius: 18px;
+            word-wrap: break-word;
+            animation: slideUp 0.3s ease;
+        }
+
+        .message.user {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            align-self: flex-end;
+            border-bottom-right-radius: 5px;
+        }
+
+        .message.bot {
+            background: #f0f2f5;
+            color: #333;
+            align-self: flex-start;
+            border-bottom-left-radius: 5px;
+        }
+
+        .chat-input-container {
+            padding: 1rem;
+            border-top: 1px solid rgba(0, 0, 0, 0.1);
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .chat-input {
+            flex: 1;
+            border: 2px solid #e1e5e9;
+            border-radius: 25px;
+            padding: 0.8rem 1.2rem;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .chat-input:focus {
+            border-color: #667eea;
+        }
+
+        .send-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 45px;
+            height: 45px;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .send-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .quick-actions {
+            margin-bottom: 2rem;
+        }
+
+        .quick-actions h3 {
+            margin-bottom: 1rem;
+            color: #333;
+            font-size: 1.1rem;
+        }
+
+        .action-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.5rem;
+        }
+
+        .action-btn {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.8rem;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: transform 0.2s ease;
+            text-align: center;
+        }
+
+        .action-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .analytics-panel, .admin-panel {
+            display: none;
+            background: rgba(255, 255, 255, 0.95);
+            border-radius: 20px;
+            padding: 1.5rem;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .analytics-panel.active, .admin-panel.active {
+            display: block;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 1.5rem;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2rem;
+            font-weight: bold;
+            margin-bottom: 0.5rem;
+        }
+
+        .chart-container {
+            background: white;
+            border-radius: 15px;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: #333;
+            font-weight: 500;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 2px solid #e1e5e9;
+            border-radius: 10px;
+            font-size: 0.9rem;
+            outline: none;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            border-color: #667eea;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: transform 0.2s ease;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+        }
+
+        .typing-indicator {
+            display: none;
+            align-items: center;
+            gap: 0.3rem;
+            padding: 1rem;
+            color: #666;
+        }
+
+        .typing-dots {
+            display: flex;
+            gap: 3px;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #666;
+            animation: typing 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+        .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); opacity: 0.3; }
+            30% { transform: translateY(-10px); opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 1rem 1.5rem;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transform: translateX(400px);
+            transition: transform 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .main-container {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                order: 2;
+            }
+            
+            .action-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .nav-tabs {
+                flex-wrap: wrap;
+                gap: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="logo">
+            🎓 Smart Campus Assistant
+        </div>
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('chat')">Chat</button>
+            <button class="nav-tab" onclick="switchTab('analytics')">Analytics</button>
+            <button class="nav-tab" onclick="switchTab('admin')">Admin</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="quick-actions">
+                <h3>Quick Actions</h3>
+                <div class="action-grid">
+                    <button class="action-btn" onclick="quickQuery('library hours')">📚 Library Hours</button>
+                    <button class="action-btn" onclick="quickQuery('dining options')">🍽️ Dining</button>
+                    <button class="action-btn" onclick="quickQuery('class schedule')">📅 Schedule</button>
+                    <button class="action-btn" onclick="quickQuery('parking info')">🚗 Parking</button>
+                    <button class="action-btn" onclick="quickQuery('campus map')">🗺️ Campus Map</button>
+                    <button class="action-btn" onclick="quickQuery('student services')">🎯 Services</button>
+                    <button class="action-btn" onclick="quickQuery('events today')">🎪 Events</button>
+                    <button class="action-btn" onclick="quickQuery('help desk')">💬 Help</button>
+                </div>
+            </div>
+
+
+        </div>
+
+        <div class="content-area">
+            <!-- Chat Panel -->
+            <div id="chat-panel" class="chat-container">
+                <div class="chat-header">
+                    <span style="font-size: 1.5rem;">🤖</span>
+                    <div>
+                        <div style="font-weight: bold;">Campus AI Assistant</div>
+                        <div style="font-size: 0.8rem; color: #666;">Online • Ready to help</div>
+                    </div>
+                </div>
+                <div class="chat-messages" id="chatMessages">
+                    <div class="message bot">
+                        Hello Alex! 👋 I'm your Smart Campus Assistant. I can help you with:
+                        <br><br>
+                        • 📚 Library services & hours
+                        • 🍽️ Dining options & menus
+                        • 📅 Class schedules & room locations
+                        • 🏢 Campus facilities & services
+                        • 📝 Administrative procedures
+                        • 📊 Academic progress tracking
+                        • 💡 Study recommendations
+                        <br><br>
+                        What can I help you with today?
+                    </div>
+                </div>
+                <div class="typing-indicator" id="typingIndicator">
+                    <span>Assistant is typing</span>
+                    <div class="typing-dots">
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                        <div class="typing-dot"></div>
+                    </div>
+                </div>
+                <div class="chat-input-container">
+                    <input type="text" class="chat-input" id="chatInput" placeholder="Ask me anything about campus..." onkeypress="handleKeyPress(event)">
+                    <button class="send-btn" onclick="sendMessage()">➤</button>
+                </div>
+            </div>
+
+            <!-- Analytics Panel -->
+            <div id="analytics-panel" class="analytics-panel">
+                <h2 style="margin-bottom: 2rem; color: #333;">📊 Campus Analytics Dashboard</h2>
+                
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-number">1,247</div>
+                        <div>Total Queries Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">856</div>
+                        <div>Active Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">94%</div>
+                        <div>Satisfaction Rate</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">2.3s</div>
+                        <div>Avg Response Time</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem;">Most Requested Services</h3>
+                    <canvas id="servicesChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem;">Usage Patterns (24h)</h3>
+                    <canvas id="usageChart" width="400" height="200"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3 style="margin-bottom: 1rem;">Student Performance Trends</h3>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                        <div>
+                            <strong>Top Performing Departments:</strong>
+                            <ul style="margin-top: 0.5rem; padding-left: 1rem;">
+                                <li>Computer Science (3.8 avg GPA)</li>
+                                <li>Engineering (3.7 avg GPA)</li>
+                                <li>Business (3.6 avg GPA)</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <strong>Study Recommendations Impact:</strong>
+                            <ul style="margin-top: 0.5rem; padding-left: 1rem;">
+                                <li>+15% improvement with AI recommendations</li>
+                                <li>87% students follow suggestions</li>
+                                <li>23% reduction in failing grades</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Admin Panel -->
+            <div id="admin-panel" class="admin-panel">
+                <h2 style="margin-bottom: 2rem; color: #333;">⚙️ Administration Panel</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Assessment Generator</h3>
+                        <div class="form-group">
+                            <label>Subject</label>
+                            <select id="assessmentSubject">
+                                <option>Computer Science</option>
+                                <option>Mathematics</option>
+                                <option>Physics</option>
+                                <option>Chemistry</option>
+                                <option>English</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Assessment Type</label>
+                            <select id="assessmentType">
+                                <option>Quiz</option>
+                                <option>Midterm Exam</option>
+                                <option>Final Exam</option>
+                                <option>Assignment</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Difficulty Level</label>
+                            <select id="difficultyLevel">
+                                <option>Beginner</option>
+                                <option>Intermediate</option>
+                                <option>Advanced</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Number of Questions</label>
+                            <input type="number" id="questionCount" value="10" min="1" max="50">
+                        </div>
+                        <button class="btn-primary" onclick="generateAssessment()">Generate Assessment</button>
+                    </div>
+
+                    <div>
+                        <h3 style="margin-bottom: 1rem;">Campus Information Update</h3>
+                        <div class="form-group">
+                            <label>Information Type</label>
+                            <select id="infoType">
+                                <option>Library Hours</option>
+                                <option>Dining Menu</option>
+                                <option>Event Schedule</option>
+                                <option>Facility Status</option>
+                                <option>Course Schedule</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Update Details</label>
+                            <textarea id="updateDetails" rows="4" placeholder="Enter the updated information..."></textarea>
+                        </div>
+                        <div class="form-group">
+                            <label>Effective Date</label>
+                            <input type="date" id="effectiveDate">
+                        </div>
+                        <button class="btn-primary" onclick="updateInformation()">Update Information</button>
+                    </div>
+                </div>
+
+                <div style="margin-top: 2rem;">
+                    <h3 style="margin-bottom: 1rem;">System Management</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem;">
+                        <button class="btn-primary" onclick="exportAnalytics()">📊 Export Analytics</button>
+                        <button class="btn-primary" onclick="manageUsers()">👥 Manage Users</button>
+                        <button class="btn-primary" onclick="systemMaintenance()">🔧 System Maintenance</button>
+                        <button class="btn-primary" onclick="backupData()">💾 Backup Data</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // Campus database simulation
+        const campusDatabase = {
+            library: {
+                hours: "Monday-Friday: 7:00 AM - 11:00 PM, Saturday-Sunday: 9:00 AM - 9:00 PM",
+                services: ["Study rooms", "Computer lab", "Printing", "Research assistance", "Book borrowing"],
+                currentCapacity: "67% occupied"
+            },
+            dining: {
+                mainCafeteria: {
+                    hours: "7:00 AM - 9:00 PM",
+                    menu: ["Grilled chicken", "Vegetarian pasta", "Fresh salads", "Pizza", "Sandwiches"]
+                },
+                coffeeShop: {
+                    hours: "6:30 AM - 8:00 PM",
+                    menu: ["Coffee", "Tea", "Pastries", "Light snacks"]
+                }
+            },
+            facilities: {
+                gym: { hours: "5:00 AM - 11:00 PM", status: "Open" },
+                pool: { hours: "6:00 AM - 10:00 PM", status: "Maintenance" },
+                parking: { availability: "74 spaces available in Lot A, 23 in Lot B" }
+            },
+            schedule: {
+                "CS101": { time: "MWF 9:00-10:00 AM", room: "Tech Building 201" },
+                "MATH201": { time: "TTh 2:00-3:30 PM", room: "Science Hall 105" },
+                "PHYS150": { time: "MWF 11:00 AM-12:00 PM", room: "Science Hall 230" }
+            }
+        };
+
+        // Student data for personalized recommendations
+        const studentData = {
+            currentGPA: 3.7,
+            currentCourses: ["CS101", "MATH201", "PHYS150", "ENG102"],
+            studyHabits: "Morning person, prefers quiet environments",
+            performanceData: {
+                CS101: 85,
+                MATH201: 92,
+                PHYS150: 78,
+                ENG102: 88
+            }
+        };
+
+        let chatHistory = [];
+
+        function switchTab(tab) {
+            // Hide all panels
+            document.getElementById('chat-panel').style.display = 'none';
+            document.getElementById('analytics-panel').classList.remove('active');
+            document.getElementById('admin-panel').classList.remove('active');
+            
+            // Remove active class from all tabs
+            document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+            
+            // Show selected panel and activate tab
+            if (tab === 'chat') {
+                document.getElementById('chat-panel').style.display = 'flex';
+            } else if (tab === 'analytics') {
+                document.getElementById('analytics-panel').classList.add('active');
+                loadAnalytics();
+            } else if (tab === 'admin') {
+                document.getElementById('admin-panel').classList.add('active');
+            }
+            
+            event.target.classList.add('active');
+        }
+
+        function quickQuery(query) {
+            document.getElementById('chatInput').value = query;
+            sendMessage();
+        }
+
+        function handleKeyPress(event) {
+            if (event.key === 'Enter') {
+                sendMessage();
+            }
+        }
+
+        function sendMessage() {
+            const input = document.getElementById('chatInput');
+            const message = input.value.trim();
+            
+            if (!message) return;
+            
+            // Add user message
+            addMessage(message, 'user');
+            input.value = '';
+            
+            // Show typing indicator
+            showTypingIndicator();
+            
+            // Simulate AI processing and response
+            setTimeout(() => {
+                const response = generateAIResponse(message);
+                hideTypingIndicator();
+                addMessage(response, 'bot');
+            }, Math.random() * 2000 + 1000);
+        }
+
+        function addMessage(text, sender) {
+            const messagesContainer = document.getElementById('chatMessages');
+            const messageDiv = document.createElement('div');
+            messageDiv.className = `message ${sender}`;
+            messageDiv.innerHTML = text;
+            messagesContainer.appendChild(messageDiv);
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            chatHistory.push({ text, sender, timestamp: new Date() });
+        }
+
+        function showTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'flex';
+        }
+
+        function hideTypingIndicator() {
+            document.getElementById('typingIndicator').style.display = 'none';
+        }
+
+        function generateAIResponse(query) {
+            const lowerQuery = query.toLowerCase();
+            
+            // Library queries
+            if (lowerQuery.includes('library')) {
+                if (lowerQuery.includes('hours')) {
+                    return `📚 <strong>Library Hours:</strong><br>${campusDatabase.library.hours}<br><br>Current capacity: ${campusDatabase.library.currentCapacity}`;
+                }
+                return `📚 <strong>Library Services:</strong><br>• ${campusDatabase.library.services.join('<br>• ')}<br><br><strong>Hours:</strong> ${campusDatabase.library.hours}`;
+            }
+            
+            // Dining queries
+            if (lowerQuery.includes('dining') || lowerQuery.includes('food') || lowerQuery.includes('cafeteria')) {
+                return `🍽️ <strong>Dining Options:</strong><br><br><strong>Main Cafeteria (${campusDatabase.dining.mainCafeteria.hours}):</strong><br>• ${campusDatabase.dining.mainCafeteria.menu.join('<br>• ')}<br><br><strong>Coffee Shop (${campusDatabase.dining.coffeeShop.hours}):</strong><br>• ${campusDatabase.dining.coffeeShop.menu.join('<br>• ')}`;
+            }
+            
+            // Schedule queries
+            if (lowerQuery.includes('schedule') || lowerQuery.includes('class')) {
+                let scheduleText = '📅 <strong>Your Class Schedule:</strong><br><br>';
+                for (const [course, details] of Object.entries(campusDatabase.schedule)) {
+                    scheduleText += `<strong>${course}:</strong> ${details.time} - ${details.room}<br>`;
+                }
+                return scheduleText;
+            }
+            
+            // Parking queries
+            if (lowerQuery.includes('parking')) {
+                return `🚗 <strong>Parking Information:</strong><br>${campusDatabase.facilities.parking.availability}<br><br>💡 <em>Tip: Lot A fills up quickly during peak hours (8-10 AM). Consider arriving early or using alternative transportation.</em>`;
+            }
+            
+            // Study recommendations
+            if (lowerQuery.includes('study') || lowerQuery.includes('recommendation')) {
+                const weakCourse = Object.entries(studentData.performanceData)
+                    .sort(([,a], [,b]) => a - b)[0];
+                
+                return `💡 <strong>Personalized Study Recommendations:</strong><br><br>Based on your current performance, I suggest focusing on <strong>${weakCourse[0]}</strong> (current grade: ${weakCourse[1]}%).<br><br><strong>Recommended actions:</strong><br>• Visit the tutoring center (Library basement, Mon-Fri 2-6 PM)<br>• Form a study group with classmates<br>• Schedule office hours with your professor<br>• Use the quiet study rooms on Library 3rd floor<br><br>Your GPA could improve to <strong>3.85</strong> with focused effort on this course! 📈`;
+            }
+            
+            // Campus map
+            if (lowerQuery.includes('map') || lowerQuery.includes('location')) {
+                return `🗺️ <strong>Campus Navigation:</strong><br><br><strong>Main Buildings:</strong><br>• Tech Building (Computer Science, Engineering)<br>• Science Hall (Math, Physics, Chemistry)<br>• Liberal Arts Building (English, History)<br>• Student Union (Dining, Recreation)<br>• Library (Center of campus)<br><br>🚶‍♂️ Average walking time between buildings: 5-8 minutes<br><br>Need directions to a specific location? Just ask!`;
+            }
+            
+            // Events
+            if (lowerQuery.includes('event')) {
+                return `🎪 <strong>Today's Events:</strong><br><br>• <strong>2:00 PM</strong> - Career Fair (Student Union)<br>• <strong>4:30 PM</strong> - Computer Science Club Meeting (Tech 150)<br>• <strong>6:00 PM</strong> - Basketball Game vs. State University<br>• <strong>7:00 PM</strong> - Study Group for MATH201 (Library Room 301)<br><br>Tomorrow: Guest Lecture by AI Researcher Dr. Sarah Chen at 3:00 PM`;
+            }
+            
+            // Facilities
+            if (lowerQuery.includes('gym') || lowerQuery.includes('pool') || lowerQuery.includes('facilities')) {
+                return `🏢 <strong>Campus Facilities Status:</strong><br><br>• <strong>Fitness Center:</strong> ${campusDatabase.facilities.gym.status} (${campusDatabase.facilities.gym.hours})<br>• <strong>Swimming Pool:</strong> ${campusDatabase.facilities.pool.status} (normally ${campusDatabase.facilities.pool.hours})<br>• <strong>Tennis Courts:</strong> Available<br>• <strong>Study Rooms:</strong> 12/20 available<br><br>🔧 Pool maintenance expected to complete by Friday.`;
+            }
+            
+            // Administrative queries
+            if (lowerQuery.includes('admin') || lowerQuery.includes('procedure') || lowerQuery.includes('registration')) {
+                return `📝 <strong>
